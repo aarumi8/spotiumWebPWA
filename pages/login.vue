@@ -3,12 +3,21 @@
 
     <div v-if="isInstalled" class="bg-white bg-opacity-30 rounded-3xl p-5 w-full max-w-lg">
       <h1 class="text-left mt-0 mb-20 text-xl font-semibold text-white login-text">Log In</h1>
-      <button class="bg-transparent w-full mb-4 p-3 border border-white text-white hover:bg-white hover:text-black transition-colors duration-300 rounded-full">
+      <button @click='loginGoogle' class="bg-transparent w-full mb-4 p-3 border border-white text-white hover:bg-white hover:text-black transition-colors duration-300 rounded-full">
         <span class="font-semibold">Log In with Google</span>
       </button>
-      <button style="border-color: rgba(150, 200, 150, 0.5);" class="mb-20 relative bg-white w-full p-3 border rounded-full transition-colors duration-300 overflow-hidden">
-        <span class="z-10 relative text-gradient font-semibold">Log In with crypto wallet</span>
+      <button @click='loginWallet' style="border-color: rgba(150, 200, 150, 0.5);" class="mb-20 relative bg-white w-full p-3 border rounded-full transition-colors duration-300 overflow-hidden">
+        <span class=" relative text-gradient font-semibold">Log In with crypto wallet</span>
       </button>
+    </div>
+
+    <!-- Crypto Login Modal -->
+    <div v-if="showCryptoLogin" class="fixed p-5 top-0 left-0 w-full h-full flex items-center justify-center" @click="closeModal">
+      <div class="bg-white rounded-lg p-5 w-full max-w-md">
+        <label class="block mb-4 text-xl font-semibold">Login with Crypto Wallet</label>
+        <input v-model="walletAddress" class="border rounded w-full p-2 mb-4" type="text" placeholder="Enter your wallet address">
+        <button @click="loginWithCrypto" style="background: linear-gradient(to right, rgb(240, 237, 139), rgb(92, 191, 230));" class="w-full font-semibold text-white rounded-full p-3">Log In</button>
+      </div>
     </div>
 
     <div v-if="!isInstalled" class="bg-white bg-opacity-30 rounded-3xl p-5 w-full max-w-lg">
@@ -100,27 +109,29 @@ export default {
       isInstalled: false,
       deferredPrompt: null,
       showModal: false,
-      isIos: true
+      isIos: true,
+      showCryptoLogin: false,
+      walletAddress: null
     }
   },
   mounted() {
     self.addEventListener('fetch', event => {
-    event.respondWith(
-        fetch(event.request, { cache: "no-store" })
-        .catch(error => {
-            // Handle any errors, maybe respond with a fallback.
-            console.error('Fetching failed:', error);
-            throw error;
-        })
-    );
-});
+      event.respondWith(
+          fetch(event.request, { cache: "no-store" })
+          .catch(error => {
+              // Handle any errors, maybe respond with a fallback.
+              console.error('Fetching failed:', error);
+              throw error;
+          })
+      );
+    });
 
     if (this.isAppInstalled()) {
       console.log('the app is installed') 
       this.isInstalled = true
     } else {
       console.log('the app is not installed')
-      this.isInstalled = false
+      this.isInstalled = true // !!
     }
 
     if(this.getDeviceOS() !== 'IOS') {
@@ -150,6 +161,24 @@ export default {
     },
     async installApp() {
       this.showModal = true
+    },
+    loginGoogle() {
+      this.login()
+    },
+    loginWallet() {
+      this.showCryptoLogin = true
+    },
+    closeModal(event) {
+      if (event.target === event.currentTarget) {
+        this.showCryptoLogin = false;
+      }
+    },
+    loginWithCrypto() {
+      if(this.walletAddress) {
+        this.login()
+      } else {
+        alert('Please, enter your wallet address')
+      }
     },
     login() {
       // When button is clicked, set loggedIn to true in the store
