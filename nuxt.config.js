@@ -49,6 +49,11 @@ export default {
 
   // PWA module configuration: https://go.nuxtjs.dev/pwa
   pwa: {
+    workbox: {
+      importScripts: [
+        '/workbox-sw.js'
+      ]
+    },
     manifest: {
       lang: 'en'
     }

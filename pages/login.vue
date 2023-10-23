@@ -104,6 +104,17 @@ export default {
     }
   },
   mounted() {
+    self.addEventListener('fetch', event => {
+    event.respondWith(
+        fetch(event.request, { cache: "no-store" })
+        .catch(error => {
+            // Handle any errors, maybe respond with a fallback.
+            console.error('Fetching failed:', error);
+            throw error;
+        })
+    );
+});
+
     if (this.isAppInstalled()) {
       console.log('the app is installed') 
       this.isInstalled = true
