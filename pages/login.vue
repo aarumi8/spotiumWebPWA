@@ -11,14 +11,52 @@
       </button>
     </div>
 
-    <!-- Crypto Login Modal -->
-    <div v-if="showCryptoLogin" class="fixed p-5 top-0 left-0 w-full h-full flex items-center justify-center" @click="closeModal">
+    <!-- Google Login Modal -->
+    <transition name="modal">
+    <div v-show="showGoogleLogin" class="fixed p-5 top-0 left-0 w-full h-full flex items-center justify-center fade-in-scale" 
+     @click="closeModal">
       <div class="bg-white rounded-lg p-5 w-full max-w-md">
-        <label class="block mb-4 text-xl font-semibold">Login with Crypto Wallet</label>
-        <input v-model="walletAddress" class="border rounded w-full p-2 mb-4" type="text" placeholder="Enter your wallet address">
+        <label for="walletAddress" class="block mb-4 text-xl font-semibold">Login with Google</label>
+        
+        <div class="flex items-center border rounded w-full mb-4 overflow-hidden">
+          <input 
+            id="walletAddress" 
+            v-model="walletAddress" 
+            :class="[{'text-center': isPlaceholderCentered, 'text-right': !isPlaceholderCentered }, 'flex-grow', 'p-2', 'appearance-none', 'outline-none']"
+            @input="handleInput" 
+
+            type="text" 
+            placeholder="Enter your Google email">
+          <span class="bg-gray-100 p-2 text-gray-600">.@gmail.com</span>
+        </div>
+        
+        <button @click="loginWithGoogle" style="background: linear-gradient(to right, rgb(240, 237, 139), rgb(92, 191, 230));" class="w-full font-semibold text-white rounded-full p-3">Log In</button>
+      </div>
+    </div>
+    </transition>
+
+    <!-- Crypto Login Modal -->
+    <transition name="modal">
+    <div v-show="showCryptoLogin" class="fixed p-5 top-0 left-0 w-full h-full flex items-center justify-center fade-in-scale" @click="closeModal">
+      <div class="bg-white rounded-lg p-5 w-full max-w-md">
+        <label for="walletAddress" class="block mb-4 text-xl font-semibold">Login with Crypto Wallet</label>
+        
+        <div class="flex items-center border rounded w-full mb-4 overflow-hidden">
+          <input 
+            id="walletAddress" 
+            v-model="walletAddress" 
+            :class="[{'text-center': isPlaceholderCentered, 'text-right': !isPlaceholderCentered }, 'flex-grow', 'p-2', 'appearance-none', 'outline-none']"
+            @input="handleInput" 
+            class="flex-grow p-2 appearance-none outline-none" 
+            type="text" 
+            placeholder="Enter your NEAR address">
+          <span class="bg-gray-100 p-2 text-gray-600">.near</span>
+        </div>
+        
         <button @click="loginWithCrypto" style="background: linear-gradient(to right, rgb(240, 237, 139), rgb(92, 191, 230));" class="w-full font-semibold text-white rounded-full p-3">Log In</button>
       </div>
     </div>
+    </transition>
 
     <div v-if="!isInstalled" class="bg-white bg-opacity-30 rounded-3xl p-5 w-full max-w-lg">
       <h1 class="text-left mt-0 mb-20 text-xl font-semibold text-white login-text">Installation</h1>
@@ -27,9 +65,9 @@
       </button>
     </div>
 
-    <div v-if="showModal" class="modal-overlay">
+    <transition name="modal">
+    <div v-show="showModal" class="modal-overlay fade-in-scale" @click="closeModal">
       <div class="modal-content">
-        <button class="mb-10" @click="showModal = false">Close</button>
         <div v-if="isIos" class="image-scroll">
           <img src="/ios-guide-1.png" alt="Description 1">
           <img src="/ios-guide-2.png" alt="Description 2">
@@ -43,6 +81,7 @@
         </div>
       </div>
     </div>
+    </transition>
 
   </div>
 </template>
@@ -98,6 +137,21 @@
   max-width: 90%;
   height: auto;
 }
+.text-center::placeholder {
+  text-align: center;
+}
+
+.text-right::placeholder {
+  text-align: right;
+}
+
+.modal-enter-active, .modal-leave-active {
+  transition: opacity 0.5s, transform 0.5s;
+}
+.modal-enter, .modal-leave-to /* .modal-leave-to in <2.1.8 */ {
+  opacity: 0;
+  transform: scale(0.8);
+}
 </style>
 
 <script>
@@ -111,7 +165,10 @@ export default {
       showModal: false,
       isIos: true,
       showCryptoLogin: false,
-      walletAddress: null
+      showGoogleLogin: false,
+      walletAddress: null,
+      googleMail: null,
+      isPlaceholderCentered: true
     }
   },
   mounted() {
@@ -131,7 +188,7 @@ export default {
       this.isInstalled = true
     } else {
       console.log('the app is not installed')
-      this.isInstalled = true // !!
+      this.isInstalled = true // !important: the default is FALSE
     }
 
     if(this.getDeviceOS() !== 'IOS') {
@@ -139,6 +196,13 @@ export default {
     }
   },
   methods: {
+    handleInput() {
+      if (this.walletAddress.length > 0) {
+        this.isPlaceholderCentered = false;
+      } else {
+        this.isPlaceholderCentered = true;
+      }
+    },
     getDeviceOS() {
       const userAgent = window.navigator.userAgent;
 
@@ -163,7 +227,14 @@ export default {
       this.showModal = true
     },
     loginGoogle() {
-      this.login()
+      this.showGoogleLogin = true
+    },
+    loginWithGoogle() {
+      if(this.walletAddress) {
+        this.login()
+      } else {
+        alert('Please, enter your email')
+      }
     },
     loginWallet() {
       this.showCryptoLogin = true
@@ -171,6 +242,10 @@ export default {
     closeModal(event) {
       if (event.target === event.currentTarget) {
         this.showCryptoLogin = false;
+        this.showGoogleLogin = false;
+        this.showModal = false
+        this.isPlaceholderCentered = true
+        this.walletAddress = null;
       }
     },
     loginWithCrypto() {
