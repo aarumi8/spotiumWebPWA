@@ -18,6 +18,23 @@
       </button>
     </div>
 
+    <div v-if="showModal" class="modal-overlay">
+      <div class="modal-content">
+        <button class="mb-10" @click="showModal = false">Close</button>
+        <div v-if="isIos" class="image-scroll">
+          <img src="/ios-guide-1.png" alt="Description 1">
+          <img src="/ios-guide-2.png" alt="Description 2">
+          <img src="/ios-guide-3.png" alt="Description 3">
+        </div>
+
+        <div v-if="!isIos" class="image-scroll">
+          <img src="/a-guide-1.png" alt="Description 1">
+          <img src="/a-guide-2.png" alt="Description 2">
+          <img src="/a-guide-3.png" alt="Description 3">
+        </div>
+      </div>
+    </div>
+
   </div>
 </template>
 
@@ -38,6 +55,40 @@
   -webkit-background-clip: text;
   color: transparent;
 }
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 11;
+}
+
+.modal-content {
+  background: #fff;
+  padding: 20px;
+  width: 80%;
+  max-width: 600px;
+  border-radius: 10px;
+  overflow: auto;
+}
+
+.image-scroll {
+  display: flex;
+  flex-direction: row;
+  overflow-x: auto;
+}
+
+.image-scroll img {
+  margin-right: 10px;
+  max-width: 90%;
+  height: auto;
+}
 </style>
 
 <script>
@@ -47,44 +98,47 @@ export default {
   data() {
     return {
       isInstalled: false,
-      deferredPrompt: null
+      deferredPrompt: null,
+      showModal: false,
+      isIos: true
     }
   },
   mounted() {
-    if (window.matchMedia('(display-mode: standalone)').matches) {
+    if (this.isAppInstalled()) {
       console.log('the app is installed') 
+      this.isInstalled = true
     } else {
       console.log('the app is not installed')
+      this.isInstalled = false
     }
-    // window.addEventListener('beforeinstallprompt', this.beforeInstallPrompt);
-    // window.addEventListener('appinstalled', this.onAppInstalled);
-  },
-  beforeDestroy() {
-    window.removeEventListener('beforeinstallprompt', this.beforeInstallPrompt);
-    window.removeEventListener('appinstalled', this.onAppInstalled);
+
+    if(this.getDeviceOS() !== 'IOS') {
+      this.isIos = false
+    }
   },
   methods: {
-    beforeInstallPrompt(event) {
-      event.preventDefault();
-      this.deferredPrompt = event;
-      this.showPrompt = true;
+    getDeviceOS() {
+      const userAgent = window.navigator.userAgent;
+
+      if (/android/i.test(userAgent)) {
+        return 'Android';
+      }
+
+      if (/iPad|iPhone|iPod/i.test(userAgent)) {
+        return 'IOS';
+      }
+
+      return 'Unknown'
+    },
+    isAppInstalled() {
+      if (window.matchMedia('(display-mode: standalone)').matches) {
+        return true
+      } else {
+        return false
+      }
     },
     async installApp() {
-      if (!this.deferredPrompt) return;
-      this.showPrompt = false;
-
-      this.deferredPrompt.prompt();
-      const { outcome } = await this.deferredPrompt.userChoice;
-      console.log(`User response: ${outcome}`);
-
-      this.deferredPrompt = null;
-    },
-    dismiss() {
-      this.showPrompt = false;
-    },
-    onAppInstalled() {
-      console.log('App installed');
-      this.showPrompt = false;
+      this.showModal = true
     },
     login() {
       // When button is clicked, set loggedIn to true in the store
