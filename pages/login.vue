@@ -46,10 +46,46 @@ export default {
   middleware: 'auth',
   data() {
     return {
-      isInstalled: false
+      isInstalled: false,
+      deferredPrompt: null
     }
   },
+  mounted() {
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+      console.log('the app is installed') 
+    } else {
+      console.log('the app is not installed')
+    }
+    // window.addEventListener('beforeinstallprompt', this.beforeInstallPrompt);
+    // window.addEventListener('appinstalled', this.onAppInstalled);
+  },
+  beforeDestroy() {
+    window.removeEventListener('beforeinstallprompt', this.beforeInstallPrompt);
+    window.removeEventListener('appinstalled', this.onAppInstalled);
+  },
   methods: {
+    beforeInstallPrompt(event) {
+      event.preventDefault();
+      this.deferredPrompt = event;
+      this.showPrompt = true;
+    },
+    async installApp() {
+      if (!this.deferredPrompt) return;
+      this.showPrompt = false;
+
+      this.deferredPrompt.prompt();
+      const { outcome } = await this.deferredPrompt.userChoice;
+      console.log(`User response: ${outcome}`);
+
+      this.deferredPrompt = null;
+    },
+    dismiss() {
+      this.showPrompt = false;
+    },
+    onAppInstalled() {
+      console.log('App installed');
+      this.showPrompt = false;
+    },
     login() {
       // When button is clicked, set loggedIn to true in the store
       this.$store.commit('setLoggedIn', true);
@@ -57,9 +93,6 @@ export default {
       // Redirect to home or profile creation based on your requirements
       this.$router.push('/create-profile');
     },
-    installApp() {
-      this.isInstalled = true
-    }
   }
 }
 </script>
