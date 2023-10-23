@@ -2,7 +2,7 @@
 
 export const state = () => ({
     loggedIn: false,
-    newUser: false
+    newUser: true
   });
   
   export const mutations = {
