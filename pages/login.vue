@@ -22,11 +22,11 @@
           <input 
             id="walletAddress" 
             v-model="walletAddress" 
-            :class="[{'text-center': isPlaceholderCentered, 'text-right': !isPlaceholderCentered }, 'flex-grow', 'p-2', 'appearance-none', 'outline-none']"
+            :class="[{'text-center': isPlaceholderCentered, 'text-right': !isPlaceholderCentered }, 'flex-grow', 'p-1', 'appearance-none', 'outline-none']"
             @input="handleInput" 
 
             type="text" 
-            placeholder="Enter your Google email">
+            placeholder="Enter your Google mail">
           <span class="bg-gray-100 p-2 text-gray-600">.@gmail.com</span>
         </div>
         
@@ -45,7 +45,7 @@
           <input 
             id="walletAddress" 
             v-model="walletAddress" 
-            :class="[{'text-center': isPlaceholderCentered, 'text-right': !isPlaceholderCentered }, 'flex-grow', 'p-2', 'appearance-none', 'outline-none']"
+            :class="[{'text-center': isPlaceholderCentered, 'text-right': !isPlaceholderCentered }, 'flex-grow', 'p-1', 'appearance-none', 'outline-none']"
             @input="handleInput" 
             class="flex-grow p-2 appearance-none outline-none" 
             type="text" 
