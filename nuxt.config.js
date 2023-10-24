@@ -55,6 +55,7 @@ export default {
       ]
     },
     manifest: {
+      name: 'Spotium',
       lang: 'en'
     }
   },

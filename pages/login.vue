@@ -27,7 +27,7 @@
 
             type="text" 
             placeholder="Enter your Google mail">
-          <span class="bg-gray-100 p-2 text-gray-600">.@gmail.com</span>
+          <span class="bg-gray-100 p-2 text-gray-600">@gmail.com</span>
         </div>
         
         <button @click="loginWithGoogle" style="background: linear-gradient(to right, rgb(240, 237, 139), rgb(92, 191, 230));" class="w-full font-semibold text-white rounded-full p-3">Log In</button>
@@ -188,7 +188,7 @@ export default {
       this.isInstalled = true
     } else {
       console.log('the app is not installed')
-      this.isInstalled = true // !important: the default is FALSE
+      this.isInstalled = false // !important: the default is FALSE
     }
 
     if(this.getDeviceOS() !== 'IOS') {
