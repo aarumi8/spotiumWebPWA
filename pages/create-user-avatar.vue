@@ -1,6 +1,6 @@
 <template>
   <div class="h-screen w-full font-sans p-0 bg-white">
-    <iframe v-if="showIframe" id="frame" class="w-full h-screen border-0" :src="iframeSrc" allow="camera *; microphone *; clipboard-write"></iframe>
+    <iframe v-if="showIframe" id="frame" class="w-full h-screen mb-3 border-0" :src="iframeSrc" allow="camera *; microphone *; clipboard-write"></iframe>
   </div>
 </template>
 

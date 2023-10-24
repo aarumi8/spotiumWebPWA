@@ -59,7 +59,7 @@
     </div>
 
     <!-- Buttons in Column -->
-    <div class="flex flex-col gap-4 mt-auto">
+    <div class="flex flex-col gap-4 mb-3 mt-auto">
       <button @click="complete" style="background: linear-gradient(to right, rgb(240, 237, 139), rgb(92, 191, 230));" class="w-full font-semibold text-white rounded-full p-3">Create</button>
     </div>
 

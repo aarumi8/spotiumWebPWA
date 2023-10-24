@@ -62,7 +62,7 @@
     </div>
 
     <!-- Button: Complete -->
-    <button @click="completeProfile" style="background: linear-gradient(to right, rgb(240, 237, 139), rgb(92, 191, 230));" class="mt-auto w-full font-semibold text-white rounded-full p-3">Complete</button>
+    <button @click="completeProfile" style="background: linear-gradient(to right, rgb(240, 237, 139), rgb(92, 191, 230));" class="mb-3 mt-auto w-full font-semibold text-white rounded-full p-3">Complete</button>
 
   </div>
 </template>
