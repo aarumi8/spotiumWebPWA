@@ -4,7 +4,7 @@
     <div v-if="isInstalled" class="bg-white bg-opacity-30 rounded-3xl p-5 w-full max-w-lg">
       <h1 class="text-left mt-0 mb-20 text-xl font-semibold text-white login-text">Log In</h1>
       <button @click='loginGoogle' class="bg-transparent w-full mb-4 p-3 border border-white text-white hover:bg-white hover:text-black transition-colors duration-300 rounded-full">
-        <span class="font-semibold">Log In with Google</span>
+        <span class="font-semibold">Log In with Email</span>
       </button>
       <button @click='loginWallet' style="border-color: rgba(150, 200, 150, 0.5);" class="mb-20 relative bg-white w-full p-3 border rounded-full transition-colors duration-300 overflow-hidden">
         <span class=" relative text-gradient font-semibold">Log In with crypto wallet</span>
@@ -16,7 +16,7 @@
     <div v-show="showGoogleLogin" class="fixed p-5 top-0 left-0 w-full h-full flex items-center justify-center fade-in-scale" 
      @click="closeModal">
       <div class="bg-white rounded-lg p-5 w-full max-w-md">
-        <label for="walletAddress" class="block mb-4 text-xl font-semibold">Login with Google</label>
+        <label for="walletAddress" class="block mb-4 text-xl font-semibold">Login with Email</label>
         
         <div class="flex items-center border rounded w-full mb-4 overflow-hidden">
           <input 
@@ -26,8 +26,8 @@
             @input="handleInput" 
 
             type="text" 
-            placeholder="Enter your Google mail">
-          <span class="bg-gray-100 p-2 text-gray-600">@gmail.com</span>
+            placeholder="Enter your email">
+          <!-- <span class="bg-gray-100 p-2 text-gray-600">@gmail.com</span> -->
         </div>
         
         <button @click="loginWithGoogle" style="background: linear-gradient(to right, rgb(240, 237, 139), rgb(92, 191, 230));" class="w-full font-semibold text-white rounded-full p-3">Log In</button>
