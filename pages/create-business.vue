@@ -5,7 +5,7 @@
 
     <!-- Text Field: Business Name -->
     <label for="businessName" class="text-white mb-2 font-semibold">Business Name</label>
-    <div class="flex p-1 items-center border border-opacity-30 border-white rounded-full w-full mb-4 overflow-hidden">
+    <div class="flex p-2 items-center border border-opacity-30 border-white rounded-full w-full mb-4 overflow-hidden">
     <input 
         id="businessName" 
         v-model="businessName" 
@@ -17,7 +17,7 @@
 
     <!-- Text Field: Address -->
     <label for="address" class="text-white mb-2 font-semibold">Address</label>
-    <div class="flex p-1 items-center border border-opacity-30 border-white rounded-full w-full mb-4 overflow-hidden">
+    <div class="flex p-2 items-center border border-opacity-30 border-white rounded-full w-full mb-4 overflow-hidden">
     <input 
         id="address" 
         v-model="address" 
@@ -29,7 +29,7 @@
 
     <!-- Text Field: Email -->
     <label for="email" class="text-white mb-2 font-semibold">Email</label>
-    <div class="flex p-1 items-center border border-opacity-30 border-white rounded-full w-full mb-4 overflow-hidden">
+    <div class="flex p-2 items-center border border-opacity-30 border-white rounded-full w-full mb-4 overflow-hidden">
     <input 
         id="email" 
         v-model="email" 
@@ -41,7 +41,7 @@
 
     <!-- Dropdown Picker: Industry -->
     <label for="industry" class="text-white mb-2 font-semibold">Industry</label>
-    <div class="flex p-1 items-center border border-opacity-30 border-white rounded-full w-full mb-4 overflow-hidden">
+    <div class="flex p-2 items-center border border-opacity-30 border-white rounded-full w-full mb-4 overflow-hidden">
       <select 
         id="industry" 
         v-model="industry" 

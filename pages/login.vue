@@ -188,7 +188,7 @@ export default {
       this.isInstalled = true
     } else {
       console.log('the app is not installed')
-      this.isInstalled = true // !important: the default is FALSE
+      this.isInstalled = false // !important: the default is FALSE
     }
 
     if(this.getDeviceOS() !== 'IOS') {
