@@ -5,8 +5,6 @@
 <script>
 import "mapbox-gl/dist/mapbox-gl.css";
 import mapboxgl from "mapbox-gl";
-// import * as THREE from "three";
-// import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { Threebox } from "threebox-plugin";
 
 export default {
@@ -17,6 +15,7 @@ export default {
       map: null,
       watchId: null,
       tb: null,
+      currentHeading: 0,
     };
   },
   async mounted() {
@@ -62,6 +61,7 @@ export default {
             };
 
             window.tb.loadObj(options, (model) => {
+              this.modelReference = model;
               model.setCoords(center);
               model.setRotation({ x: 0, y: 0, z: 0 });
               window.tb.add(model);
@@ -76,6 +76,28 @@ export default {
 
         // map.moveLayer('custom-threebox-model');
       });
+
+      // Start watching user's location
+      this.watchId = navigator.geolocation.watchPosition(
+        (position) => {
+          const coords = {
+            lng: position.coords.longitude,
+            lat: position.coords.latitude,
+          };
+          this.updateUserLocationOnMap(coords);
+          if (this.modelReference) {
+            this.modelReference.setCoords([coords.lng, coords.lat]); // Move the 3D model to the new location
+          }
+        },
+        (error) => {
+          console.error("Error watching user's location:", error);
+        },
+        {
+          enableHighAccuracy: true,
+          maximumAge: 0,
+          timeout: 5000,
+        }
+      );
 
       this.map = map;
     }
@@ -103,16 +125,23 @@ export default {
       });
     },
     updateUserLocationOnMap(coords) {
-      if (this.map && this.map.getSource("user-location")) {
-        const userLocationData = {
-          type: "Feature",
-          geometry: {
-            type: "Point",
-            coordinates: coords,
-          },
-        };
-        this.map.getSource("user-location").setData(userLocationData);
+      if (this.map) {
+        this.map.flyTo({
+          center: [coords.lng, coords.lat],
+          essential: true,
+          duration: 1000,
+        });
       }
+      // if (this.map && this.map.getSource("user-location")) {
+      //   const userLocationData = {
+      //     type: "Feature",
+      //     geometry: {
+      //       type: "Point",
+      //       coordinates: coords,
+      //     },
+      //   };
+      //   this.map.getSource("user-location").setData(userLocationData);
+      // }
     },
   },
 };
