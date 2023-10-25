@@ -3,7 +3,8 @@
 export const state = () => ({
     loggedIn: false,
     newUser: true,
-    avatarUrl: null
+    avatarUrl: null,
+    isHeadingPermission: false
   });
   
   export const mutations = {
@@ -15,6 +16,9 @@ export const state = () => ({
     },
     setNewUser(state, status) {
       state.newUser = status;
+    },
+    setIsHeadingPermission(state, status) {
+      state.isHeadingPermission = status;
     }
   };
   

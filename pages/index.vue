@@ -1,5 +1,10 @@
 <template>
-  <div class="map-container" ref="mapContainer"></div>
+  <div>
+    <button id='permBtn' v-if="!isHeadingPermission" @click="requestHeadingPermission">
+      Click here to allow heading permission
+    </button>
+    <div class="map-container" ref="mapContainer"></div>
+  </div>
 </template>
 
 <script>
@@ -16,6 +21,7 @@ export default {
       watchId: null,
       tb: null,
       currentHeading: 0,
+      isHeadingPermission: false,
     };
   },
   async mounted() {
@@ -28,6 +34,8 @@ export default {
       } catch (error) {
         console.error("Error getting user's location:", error);
       }
+
+      this.requestHeadingPermission()
 
       mapboxgl.accessToken =
         "pk.eyJ1IjoiZG9wbGVyMTY4IiwiYSI6ImNrMWsyZmxzNDAyaGgzb28zdTVyZzh3ejIifQ.rSb8A8Lm1MxVk7IMK9n40Q";
@@ -95,7 +103,7 @@ export default {
         {
           enableHighAccuracy: true,
           maximumAge: 0,
-          timeout: 5000,
+          timeout: 1000,
         }
       );
 
@@ -132,16 +140,49 @@ export default {
           duration: 1000,
         });
       }
-      // if (this.map && this.map.getSource("user-location")) {
-      //   const userLocationData = {
-      //     type: "Feature",
-      //     geometry: {
-      //       type: "Point",
-      //       coordinates: coords,
-      //     },
-      //   };
-      //   this.map.getSource("user-location").setData(userLocationData);
-      // }
+    },
+    requestHeadingPermission() {
+      if (typeof DeviceMotionEvent.requestPermission === "function") {
+        window.DeviceOrientationEvent.requestPermission()
+          .then((response) => {
+            if (response == "granted") {
+              window.addEventListener(
+                "deviceorientation",
+                this.handleDeviceOrientation,
+                true
+              );
+              this.$store.commit("isHeadingPermission", true);
+              this.isHeadingPermission = true;
+            }
+          })
+          .catch(console.error);
+      } else {
+        window.addEventListener(
+          "deviceorientationabsolute",
+          this.handleDeviceOrientation,
+          true
+        );
+        this.$store.commit("setIsHeadingPermission", true);
+        this.isHeadingPermission = true;
+      }
+    },
+    handleDeviceOrientation(event) {
+      let compassdir;
+
+      if (event.webkitCompassHeading) {
+        // For Apple devices
+        compassdir = event.webkitCompassHeading;
+      } else if (typeof event.alpha === "number") {
+        // For non-Apple devices
+        compassdir = event.alpha;
+      }
+
+      compassdir -= 80;
+      compassdir = compassdir % 360;
+
+      if (this.modelReference && typeof compassdir === "number") {
+        this.modelReference.setRotation({ x: 0, y: 0, z: -compassdir }); // Adjust the rotation based on the heading
+      }
     },
   },
 };
