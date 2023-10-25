@@ -1,105 +1,145 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html>
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport"
-        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>Document</title>
-    <style>
-        html,
-        body,
-        .frame {
-            width: 1080px;
-            height: 800px;
-            margin: 0;
-            font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans,
-                Droid Sans, Helvetica Neue, sans-serif;
-            padding: 20px;
-            font-size: 14px;
-            border: none;
-        }
-
-        .warning {
-            background-color: #df68a2;
-            padding: 3px;
-            border-radius: 5px;
-            color: white;
-        }
-    </style>
+<meta charset="utf-8">
+<title>Add a 3D model</title>
+<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+<link href="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css" rel="stylesheet">
+<script src="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js"></script>
+<style>
+body { margin: 0; padding: 0; }
+#map { position: absolute; top: 0; bottom: 0; width: 100%; }
+</style>
 </head>
-
 <body>
-    <h2>Ready Player Me iframe example</h2>
-    <ul>
-        <li>Click the "Open Ready Player Me" button.</li>
-        <li>Create an avatar and click the "Done" button when you're done customizing.</li>
-        <li>After creation, this parent page receives the URL to the avatar.</li>
-        <li>The Ready Player Me window closes and the URL is displayed.</li>
-    </ul>
-    <p class="warning">
-        If you have a subdomain, replace the 'demo' subdomain in the iframe source URL with yours.
-    </p>
+<script src="https://unpkg.com/three@0.126.0/build/three.min.js"></script>
+<script src="https://unpkg.com/three@0.126.0/examples/js/loaders/GLTFLoader.js"></script>
+<div id="map"></div>
+<script>
+	// TO MAKE THE MAP APPEAR YOU MUST
+	// ADD YOUR ACCESS TOKEN FROM
+	// https://account.mapbox.com
+	mapboxgl.accessToken = 'pk.eyJ1IjoiZG9wbGVyMTY4IiwiYSI6ImNrMWsyZmxzNDAyaGgzb28zdTVyZzh3ejIifQ.rSb8A8Lm1MxVk7IMK9n40Q';
+    const map = new mapboxgl.Map({
+        container: 'map',
+        // Choose from Mapbox's core styles, or make your own style with Mapbox Studio
+        style: 'mapbox://styles/mapbox/light-v11',
+        zoom: 18,
+        center: [148.9819, -35.3981],
+        pitch: 60,
+        antialias: true // create the gl context with MSAA antialiasing, so custom layers are antialiased
+    });
 
-    <input type="button" value="Open Ready Player Me" onClick="displayIframe()" />
-    <p id="avatarUrl">Avatar URL:</p>
+    // parameters to ensure the model is georeferenced correctly on the map
+    const modelOrigin = [148.9819, -35.39847];
+    const modelAltitude = 0;
+    const modelRotate = [Math.PI / 2, 0, 0];
 
-    <iframe id="frame" style="width: 400px; height: 900px;" class="frame" allow="camera *; microphone *; clipboard-write" hidden></iframe>
+    const modelAsMercatorCoordinate = mapboxgl.MercatorCoordinate.fromLngLat(
+        modelOrigin,
+        modelAltitude
+    );
 
-    <script>
-        const subdomain = 'spotium-web'; // Replace with your custom subdomain
-        const frame = document.getElementById('frame');
+    // transformation parameters to position, rotate and scale the 3D model onto the map
+    const modelTransform = {
+        translateX: modelAsMercatorCoordinate.x,
+        translateY: modelAsMercatorCoordinate.y,
+        translateZ: modelAsMercatorCoordinate.z,
+        rotateX: modelRotate[0],
+        rotateY: modelRotate[1],
+        rotateZ: modelRotate[2],
+        /* Since the 3D model is in real world meters, a scale transform needs to be
+         * applied since the CustomLayerInterface expects units in MercatorCoordinates.
+         */
+        scale: modelAsMercatorCoordinate.meterInMercatorCoordinateUnits()
+    };
 
-        frame.src = `https://${subdomain}.readyplayer.me/avatar?frameApi`;
+    const THREE = window.THREE;
 
-        window.addEventListener('message', subscribe);
-        document.addEventListener('message', subscribe);
+    // configuration of the custom layer for a 3D model per the CustomLayerInterface
+    const customLayer = {
+        id: '3d-model',
+        type: 'custom',
+        renderingMode: '3d',
+        onAdd: function (map, gl) {
+            this.camera = new THREE.Camera();
+            this.scene = new THREE.Scene();
 
-        function subscribe(event) {
-            const json = parse(event);
+            // create two three.js lights to illuminate the model
+// Light for the front of the model
+const frontLight = new THREE.DirectionalLight(0xffffff);
+frontLight.position.set(0, 0, -1); // Position the light source behind the model
+this.scene.add(frontLight);
 
-            if (json?.source !== 'readyplayerme') {
-                return;
-            }
+// Light for the back of the model
+const backLight = new THREE.DirectionalLight(0xffffff);
+backLight.position.set(0, 0, 1);  // Position the light source in front of the model
+this.scene.add(backLight);
 
-            // Susbribe to all events sent from Ready Player Me once frame is ready
-            if (json.eventName === 'v1.frame.ready') {
-                frame.contentWindow.postMessage(
-                    JSON.stringify({
-                        target: 'readyplayerme',
-                        type: 'subscribe',
-                        eventName: 'v1.**'
-                    }),
-                    '*'
-                );
-            }
 
-            // Get avatar GLB URL
-            if (json.eventName === 'v1.avatar.exported') {
-                console.log(`Avatar URL: ${json.data.url}`);
-                document.getElementById('avatarUrl').innerHTML = `Avatar URL: ${json.data.url}`;
-                document.getElementById('frame').hidden = true;
-            }
 
-            // Get user id
-            if (json.eventName === 'v1.user.set') {
-                console.log(`User with id ${json.data.id} set: ${JSON.stringify(json)}`);
-            }
+            // use the three.js GLTF loader to add the 3D model to the three.js scene
+            const loader = new THREE.GLTFLoader();
+            loader.load(
+                'https://models.readyplayer.me/6185a4acfb622cf1cdc49348.glb?pose=T',
+                (gltf) => {
+                    this.scene.add(gltf.scene);
+                }
+            );
+            this.map = map;
+
+            // use the Mapbox GL JS map canvas for three.js
+            this.renderer = new THREE.WebGLRenderer({
+                canvas: map.getCanvas(),
+                context: gl,
+                antialias: true
+            });
+
+            this.renderer.autoClear = false;
+        },
+        render: function (gl, matrix) {
+            const rotationX = new THREE.Matrix4().makeRotationAxis(
+                new THREE.Vector3(1, 0, 0),
+                modelTransform.rotateX
+            );
+            const rotationY = new THREE.Matrix4().makeRotationAxis(
+                new THREE.Vector3(0, 1, 0),
+                modelTransform.rotateY
+            );
+            const rotationZ = new THREE.Matrix4().makeRotationAxis(
+                new THREE.Vector3(0, 0, 1),
+                modelTransform.rotateZ
+            );
+
+            const m = new THREE.Matrix4().fromArray(matrix);
+            const l = new THREE.Matrix4()
+                .makeTranslation(
+                    modelTransform.translateX,
+                    modelTransform.translateY,
+                    modelTransform.translateZ
+                )
+                .scale(
+                    new THREE.Vector3(
+                        modelTransform.scale * 10,
+                        -modelTransform.scale * 10,
+                        modelTransform.scale * 10
+                    )
+                )
+                .multiply(rotationX)
+                .multiply(rotationY)
+                .multiply(rotationZ);
+
+            this.camera.projectionMatrix = m.multiply(l);
+            this.renderer.resetState();
+            this.renderer.render(this.scene, this.camera);
+            this.map.triggerRepaint();
         }
+    };
 
-        function parse(event) {
-            try {
-                return JSON.parse(event.data);
-            } catch (error) {
-                return null;
-            }
-        }
+    map.on('style.load', () => {
+        map.addLayer(customLayer, 'waterway-label');
+    });
+</script>
 
-        function displayIframe() {
-            document.getElementById('frame').hidden = false;
-        }
-    </script>
 </body>
-
 </html>
