@@ -66,12 +66,15 @@ export default {
               scale: { x: scale, y: scale, z: scale },
               units: "meters",
               rotation: { x: 90, y: -90, z: 0 },
+              adjustment: { x: 0, y: 0, z: 0 },
+              anchor: 'center'
             };
 
             window.tb.loadObj(options, (model) => {
               this.modelReference = model;
               model.setCoords(center);
               model.setRotation({ x: 0, y: 0, z: 0 });
+              console.log(this.modelReference)
               window.tb.add(model);
             });
           },
