@@ -4,7 +4,8 @@ export const state = () => ({
     loggedIn: false,
     newUser: true,
     avatarUrl: null,
-    isHeadingPermission: false
+    isHeadingPermission: false,
+    isBusiness: false
   });
   
   export const mutations = {

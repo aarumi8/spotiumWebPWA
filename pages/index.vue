@@ -1,11 +1,30 @@
 <template>
-  <div>
-    <button id='permBtn' v-if="!isHeadingPermission" @click="requestHeadingPermission">
+  <div class="relative">
+    <button class="absolute" id='permBtn' v-if="!isHeadingPermission" @click="requestHeadingPermission">
       Click here to allow heading permission
     </button>
     <div class="map-container" ref="mapContainer"></div>
+
+    <!-- Button container -->
+    <div class="absolute bottom-0 left-0 right-0 flex justify-between p-4 mb-4">
+      <!-- Left button with image -->
+      <button id='businessBtn' class="flex-shrink-0">
+        <img src="add-quest-pic.png" alt="Left Button" class="w-12 h-12 object-cover">
+      </button>
+
+      <!-- Center button with image -->
+      <button>
+        <img src="ar-btn-pic.png" alt="Center Button" class="w-16 h-16 object-cover mx-auto">
+      </button>
+
+      <!-- Right button with image -->
+      <button class="flex-shrink-0">
+        <img src="profile-pic.png" alt="Right Button" class="w-12 h-12 object-cover">
+      </button>
+    </div>
   </div>
 </template>
+
 
 <script>
 import "mapbox-gl/dist/mapbox-gl.css";
@@ -22,9 +41,13 @@ export default {
       tb: null,
       currentHeading: 0,
       isHeadingPermission: false,
+      isBusiness: this.$store.state.isBusiness
     };
   },
   async mounted() {
+    if(!this.isBusiness) {
+      document.getElementById('businessBtn').style.visibility = 'hidden'
+    }
     if (process.client) {
       let center = [148.9819, -35.39847]; // default to New York
 
