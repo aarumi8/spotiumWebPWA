@@ -1,9 +1,11 @@
 <template>
   <div class="relative">
-    <button id='permBtn' v-if="!isHeadingPermission" @click="requestHeadingPermission">
-      Click here to allow heading permission
-    </button>
+
     <div class="map-container" ref="mapContainer"></div>
+
+    <button id='permBtn' style="background:rgb(30, 30, 30, 0.5)" class="absolute top-3 left-3 right-3 grow border border-white font-semibold text-white rounded-full p-3" v-if="!isHeadingPermission" @click="requestHeadingPermission">
+      <span>Tap to turn compass on</span>
+    </button>
 
     <!-- Button container -->
     <div class="absolute bottom-0 left-0 right-0 flex justify-between p-4 mb-4">
@@ -66,7 +68,7 @@ export default {
         console.error("Error getting user's location:", error);
       }
 
-      // this.requestHeadingPermission()
+      this.requestHeadingPermission()
 
       mapboxgl.accessToken =
         "pk.eyJ1IjoiZG9wbGVyMTY4IiwiYSI6ImNrMWsyZmxzNDAyaGgzb28zdTVyZzh3ejIifQ.rSb8A8Lm1MxVk7IMK9n40Q";
@@ -84,14 +86,52 @@ export default {
         defaultLights: true,
       });
 
+
       map.on("style.load", () => {
-        console.log(map.getStyle().layers)
+
+        let i = 0;
+        let models = this.quests
+
+        models.forEach((modelInfo) => {
+          i++
+          console.log(i)
+          map.addLayer({
+              id: "quest" + i,
+              type: "custom",
+              renderingMode: "3d",
+              onAdd: () => {
+                    console.log('modelInfo:')
+                    console.log(modelInfo.location)
+                      const options = {
+                          obj: modelInfo.url,
+                          type: "glb",
+                          scale: { x: 30, y: 30, z: 30 },
+                          units: "meters",
+                          rotation: { x: 90, y: -90, z: 0 },
+                          // ... copy other properties from modelInfo as needed
+                      };
+
+                      window.tb.loadObj(options, (model) => {
+                          model.setCoords([modelInfo.location.lon, modelInfo.location.lat]);
+                          model.setRotation({ x: 0, y: 0, z: 0 });
+                          window.tb.add(model);
+                      });
+                  
+              },
+
+              render: function (gl, matrix) {
+                  gl.clear(gl.DEPTH_BUFFER_BIT);
+                  window.tb.update();
+              },
+          });
+        })
+
         map.addLayer({
           id: "custom-threebox-model",
           type: "custom",
           renderingMode: "3d",
           onAdd: () => {
-            const scale = 50;
+            const scale = 30;
             const options = {
               obj: this.avatarLink,
               type: "glb",
@@ -116,52 +156,6 @@ export default {
             window.tb.update();
           },
         });
-
-      //         var q = {
-      //   name: "d",
-      //   link: "https://models.readyplayer.me/6185a4acfb622cf1cdc49348.glb",
-      //   location: {lon: 27.561063, lat: 53.917392 } 
-      // }
-      // this.$store.commit("addQuest", q);
-
-      //   if(this.quests) {
-      //     console.log('we have quests')
-      //     for(let i = 0; i < this.quests.length; i++) {
-      //       console.log(this.quests[i])
-      //       map.addLayer({
-      //         id: "quest-" + i,
-      //         type: "custom",
-      //         renderingMode: "3d",
-      //         onAdd: () => {
-      //           const scale = 30;
-      //           const options = {
-      //             obj: this.quests[i].link,
-      //             type: "glb",
-      //             scale: { x: scale, y: scale, z: scale },
-      //             units: "meters",
-      //             rotation: { x: 90, y: -90, z: 0 },
-      //             adjustment: { x: 0, y: 0, z: 0 },
-      //             anchor: 'center'
-      //           };
-      //           var lon = this.quests[i].location.lon
-      //           var lat = this.quests[i].location.lat
-
-      //           window.tb.loadObj(options, (model) => {
-      //             model.setCoords(lon, lat);
-      //             model.setRotation({ x: 0, y: 0, z: 0 });
-      //             window.tb.add(model);
-      //           });
-      //         },
-
-      //         render: function (gl, matrix) {
-      //           gl.clear(gl.DEPTH_BUFFER_BIT);
-      //           window.tb.update();
-      //         },
-      //       });
-      //     }
-      //   }
-
-        // map.moveLayer('custom-threebox-model');
       });
 
       // Start watching user's location
