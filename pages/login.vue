@@ -255,12 +255,22 @@ export default {
         alert('Please, enter your wallet address')
       }
     },
-    login() {
-      // When button is clicked, set loggedIn to true in the store
-      this.$store.commit('setLoggedIn', true);
+    async login() {
+      try {
+        const payload = { userAddress: this.walletAddress };
+        const response = await this.$axios.post('/post_create_user', payload);
+        console.log(response.status)
+        console.log(response.data);
 
-      // Redirect to home or profile creation based on your requirements
-      this.$router.push('/create-profile');
+        if(response.status === 200) {
+          this.$router.push('/create-profile' + '?user=' + response.data.id);
+        } else {
+          alert('Error on API side')
+          return
+        }
+      } catch(err) {
+        console.log(err)
+      }
     },
   }
 }

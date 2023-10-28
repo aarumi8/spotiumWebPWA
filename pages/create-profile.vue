@@ -38,20 +38,21 @@
 export default {
   layout: 'auth',
   middleware: 'auth',
+  data() {
+    return {
+      userId: this.$route.query.user
+    }
+  },
+  created() {
+    console.log(this.userId)
+  },
   methods: {
     goToUser() {
-      this.$router.push('/create-user');
+      this.$router.push('/create-user' + "?user=" + this.userId);
     },
     goToBusiness() {
-      this.$router.push('/create-business');
+      this.$router.push('/create-business' + "?user=" + this.userId);
     },
-    completeProfile() {
-      // Set newUser to true in the store
-      this.$store.commit('setNewUser', false);
-
-      // Redirect to home
-      this.$router.push('/');
-    }
   }
 }
 </script>

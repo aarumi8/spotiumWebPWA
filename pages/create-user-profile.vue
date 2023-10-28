@@ -99,6 +99,7 @@ export default {
         userName: '',
         age: '',
         imageLoading: true,
+        userId: this.$route.query.user,
         interests: [
             { label: 'Technology', selected: false },
             { label: 'Crypto', selected: false },
@@ -116,6 +117,9 @@ export default {
       avatarUrl: state => state.avatarUrl
     })
   },
+  async created() {
+
+  },
   mounted() {
     // this.avatarUrl = '6537f1ba03fbd3bd39ebcd39'
     if (this.avatarUrl) {
@@ -130,9 +134,18 @@ export default {
       // Handle input for individual fields if needed
       console.log(`${field} changed to ${this[field]}`);
     },
-    complete() {
+    async complete() {
         if(this.userName && this.age && this.interests.some(interest => interest.selected)) {
-            this.$router.push('/');
+          this.$store.commit('setLoggedIn', true);
+          const payload = { userId: this.userId };
+          const response = await this.$axios.post('/get_user', payload);
+
+          if(response.status === 200) {
+            console.log(response.data)
+            this.$router.push('/' + '?user=' + response.data.id);
+          } else {
+              alert('api error')
+            }
         } else {
             alert('Please, complete all fields and select at least 1 interest')
         }

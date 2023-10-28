@@ -77,25 +77,43 @@ export default {
       businessName: '',
       address: '',
       email: '',
-      industry: ''
+      industry: '',
+      userId: this.$route.query.user
     };
   },
   methods: {
+    async completeProfile() {
+      try {
+        const payload = { userId: this.userId, isBusiness: true, avatarUrl: "https://models.readyplayer.me/64e3055495439dfcf3f0b665.glb" };
+        const response = await this.$axios.post('/post_create_profile', payload);
+        console.log(response.status)
+        console.log(response.data);
+
+        if(response.status === 200) {
+          this.$router.push('/' + '?user=' + response.data.id);
+        } else {
+          alert('Error on API side')
+          return
+        }
+      } catch(err) {
+        console.log(err)
+      }
+    },
     handleInput(field) {
       // Handle input for individual fields if needed
       console.log(`${field} changed to ${this[field]}`);
     },
-    completeProfile() {
-        if(this.businessName && this.address && this.email && this.industry) {
-            this.$store.commit('setNewUser', false);
-            this.$store.commit('setBusiness', true);
+    // completeProfile() {
+    //     if(this.businessName && this.address && this.email && this.industry) {
+    //         this.$store.commit('setNewUser', false);
+    //         this.$store.commit('setBusiness', true);
 
-            // Redirect to home
-            this.$router.push('/');
-        } else {
-            alert('Please, complete all fields')
-        }
-    }
+    //         // Redirect to home
+    //         this.$router.push('/');
+    //     } else {
+    //         alert('Please, complete all fields')
+    //     }
+    // }
   }
 }
 </script>

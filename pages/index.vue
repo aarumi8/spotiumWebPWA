@@ -41,11 +41,17 @@ export default {
       tb: null,
       currentHeading: 0,
       isHeadingPermission: false,
-      isBusiness: this.$store.state.isBusiness,
-      quests: this.$store.state.quests
+      isBusiness: false,
+      quests: false,
+      userId: this.$route.query.user,
+      avatarLink: null,
+      quests: []
     };
   },
   async mounted() {
+    await this.getUserData()
+    await this.getQuestsData()
+
     if(!this.isBusiness) {
       document.getElementById('businessBtn').style.visibility = 'hidden'
     }
@@ -60,7 +66,7 @@ export default {
         console.error("Error getting user's location:", error);
       }
 
-      this.requestHeadingPermission()
+      // this.requestHeadingPermission()
 
       mapboxgl.accessToken =
         "pk.eyJ1IjoiZG9wbGVyMTY4IiwiYSI6ImNrMWsyZmxzNDAyaGgzb28zdTVyZzh3ejIifQ.rSb8A8Lm1MxVk7IMK9n40Q";
@@ -87,7 +93,7 @@ export default {
           onAdd: () => {
             const scale = 50;
             const options = {
-              obj: this.$store.state.avatarLink,
+              obj: this.avatarLink,
               type: "glb",
               scale: { x: scale, y: scale, z: scale },
               units: "meters",
@@ -194,8 +200,25 @@ export default {
     }
   },
   methods: {
+    async getUserData() {
+      const payload = { userId: this.userId };
+      const response = await this.$axios.post('/get_user', payload);
+
+      this.isBusiness = response.data.data.isBusiness
+      this.avatarLink = response.data.data.avatarUrl
+
+      console.log(response.data)
+    },
+    async getQuestsData() {
+      const response = await this.$axios.get('/get_quests');
+      if(response.data) {
+        this.quests = response.data
+        console.log(this.quests)
+      }
+    },
     goToQuest() {
-      this.$router.push('/create-quest');
+      // this.$router.push('/create-quest' + "?user=" + this.userId);
+      window.location.href = '/create-quest?user=' + this.userId;
     },
     getUserLocation() {
       return new Promise((resolve, reject) => {

@@ -33,12 +33,35 @@
 export default {
   layout: 'auth',
   middleware: 'auth',
+  data() {
+    return {
+      userId: this.$route.query.user
+    }
+  },
   methods: {
     createAvatar() {
-        this.$router.push('/create-user-avatar');
+        this.$router.push('/create-user-avatar' + "?user=" + this.userId);
     },
-    createProfile() {
-        this.$router.push('/create-user-profile');
+    async completeProfileAvatar(url, id) {
+      try {
+        const payload = { userId: this.userId, isBusiness: false, avatarUrl: url, avatarId: id, };
+        const response = await this.$axios.post('/post_create_profile', payload);
+        console.log(response.status)
+        console.log(response.data);
+
+        if(response.status === 200) {
+          this.$router.push('/create-user-profile' + '?user=' + response.data.id);
+        } else {
+          alert('Error on API side')
+          return
+        }
+      } catch(err) {
+        console.log(err)
+      }
+    },
+    async createProfile() {
+      await this.completeProfileAvatar('https://models.readyplayer.me/64e3055495439dfcf3f0b665.glb', 'avatar-pic-test.png')
+      this.$router.push('/create-user-profile' + "?user=" + this.userId);
     }
   }
 }

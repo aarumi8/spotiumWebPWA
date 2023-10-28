@@ -136,7 +136,8 @@ export default {
       showMap: false,
       selectedLocation: null,
       map: null,
-      numLocation: ""
+      numLocation: "",
+      userId: this.$route.query.user,
     };
   },
   async mounted() {
@@ -231,7 +232,7 @@ beforeDestroy() {
       // Handle input for individual fields if needed
       console.log(`${field} changed to ${this[field]}`);
     },
-    completeQuest() {
+    async completeQuest() {
       if (this.questName && this.location && this.linkName) {
         var quest = {
             "name": this.questName,
@@ -241,8 +242,25 @@ beforeDestroy() {
         this.$store.commit("addQuest", quest);
         console.log(this.$store.state.quests)
 
+        try {
+          const payload = { name: this.questName, url: this.linkName, location: this.numLocation };
+          const response = await this.$axios.post('/post_create_quest', payload);
+          console.log(response.status)
+          console.log(response.data);
+
+          if(response.status === 200) {
+            // this.$router.push("/" + "?user=" + this.userId);
+            window.location.href = '/?user=' + this.userId;
+          } else {
+            alert('Error on API side')
+            return
+          }
+        } catch(err) {
+          console.log(err)
+        }
+
         // Redirect to home
-        this.$router.push("/");
+        // this.$router.push("/" + "?user=" + this.userId);
       } else {
         alert("Please, complete all fields");
       }

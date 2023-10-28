@@ -10,18 +10,69 @@ export default {
   middleware: 'auth',
   data() {
     return {
-      showIframe: true, // Setting the iframe to be shown by default
-      iframeSrc: 'https://spotium-web.readyplayer.me/avatar?frameApi',
+      showIframe: false, // Setting the iframe to be shown by default
+      iframeSrc: 'https://spotium-web.readyplayer.me/avatar?frameApi&token=',
+      userId: this.$route.query.user,
+      token: null
     };
   },
-  mounted() {
+  async created() {
+    this.token = await this.getToken()
+
+    if(this.token) {
+      this.iframeSrc = this.iframeSrc + this.token
+      this.showIframe = true
+      console.log(this.iframeSrc)
+    } else {
+      this.iframeSrc = "https://spotium-web.readyplayer.me/avatar?frameApi"
+      this.showIframe = true 
+      alert('create avatar')
+    }
+
     window.addEventListener('message', this.subscribe);
+  },
+  mounted() {
+    // window.addEventListener('message', this.subscribe);
   },
   beforeDestroy() {
     // Remove the event listener to prevent potential memory leaks
     window.removeEventListener('message', this.subscribe);
   },
   methods: {
+    async getToken() {
+      try {
+        const response = await this.$axios.get('/get_data_id');
+        console.log(response.status)
+        console.log(response.data);
+
+        if(response.status === 200) {
+          return response.data.token
+        } else {
+          alert('Error on API side')
+          return null
+        }
+      } catch(err) {
+        console.log(err)
+        return null
+      }
+    },
+    async completeProfileAvatar(url, id) {
+      try {
+        const payload = { userId: this.userId, isBusiness: false, avatarUrl: url, avatarId: id, };
+        const response = await this.$axios.post('/post_create_profile', payload);
+        console.log(response.status)
+        console.log(response.data);
+
+        if(response.status === 200) {
+          this.$router.push('/create-user-profile' + '?user=' + response.data.id);
+        } else {
+          alert('Error on API side')
+          return
+        }
+      } catch(err) {
+        console.log(err)
+      }
+    },
     subscribe(event) {
       const json = this.parse(event);
 
@@ -46,7 +97,7 @@ export default {
         this.$store.commit('setAvatarUrl', json.data.avatarId);
         this.$store.commit('setAvatarLink', json.data.url);
         this.$store.commit('setLoggedIn', true);
-        this.$router.push('/create-user-profile');
+        this.completeProfileAvatar(json.data.url, json.data.avatarId)
         // document.getElementById('avatarUrl').innerText = `Avatar URL: ${json.data.url}`;
       }
 
