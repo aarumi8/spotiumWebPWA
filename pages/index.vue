@@ -75,11 +75,11 @@ export default {
       const map = new mapboxgl.Map({
         container: this.$refs.mapContainer,
         center: center,
-        zoom: 16,
+        zoom: 15,
         pitch: 45,
         bearing: -30,
         antialias: true,
-        style: "mapbox://styles/dopler168/clo4vezz400k201qxci7ab8jy",
+        style: "mapbox://styles/dopler168/clo97511u010001qs8g78b9tj",
       });
 
       window.tb = new Threebox(map, map.getCanvas().getContext("webgl"), {
@@ -88,43 +88,45 @@ export default {
 
 
       map.on("style.load", () => {
+      //map.setConfigProperty('basemap', 'lightPreset', 'dawn');
 
         let i = 0;
         let models = this.quests
+        if(models) {
+          models.forEach((modelInfo) => {
+            i++
+            console.log(i)
+            map.addLayer({
+                id: "quest" + i,
+                type: "custom",
+                renderingMode: "3d",
+                onAdd: () => {
+                      console.log('modelInfo:')
+                      console.log(modelInfo.location)
+                        const options = {
+                            obj: modelInfo.url,
+                            type: "glb",
+                            scale: { x: 30, y: 30, z: 30 },
+                            units: "meters",
+                            rotation: { x: 90, y: -90, z: 0 },
+                            // ... copy other properties from modelInfo as needed
+                        };
 
-        models.forEach((modelInfo) => {
-          i++
-          console.log(i)
-          map.addLayer({
-              id: "quest" + i,
-              type: "custom",
-              renderingMode: "3d",
-              onAdd: () => {
-                    console.log('modelInfo:')
-                    console.log(modelInfo.location)
-                      const options = {
-                          obj: modelInfo.url,
-                          type: "glb",
-                          scale: { x: 30, y: 30, z: 30 },
-                          units: "meters",
-                          rotation: { x: 90, y: -90, z: 0 },
-                          // ... copy other properties from modelInfo as needed
-                      };
+                        window.tb.loadObj(options, (model) => {
+                            model.setCoords([modelInfo.location.lon, modelInfo.location.lat]);
+                            model.setRotation({ x: 0, y: 0, z: 0 });
+                            window.tb.add(model);
+                        });
+                    
+                },
 
-                      window.tb.loadObj(options, (model) => {
-                          model.setCoords([modelInfo.location.lon, modelInfo.location.lat]);
-                          model.setRotation({ x: 0, y: 0, z: 0 });
-                          window.tb.add(model);
-                      });
-                  
-              },
-
-              render: function (gl, matrix) {
-                  gl.clear(gl.DEPTH_BUFFER_BIT);
-                  window.tb.update();
-              },
-          });
-        })
+                render: function (gl, matrix) {
+                    gl.clear(gl.DEPTH_BUFFER_BIT);
+                    window.tb.update();
+                },
+            });
+          })
+        }
 
         map.addLayer({
           id: "custom-threebox-model",
@@ -181,6 +183,7 @@ export default {
       );
 
       this.map = map;
+      this.map.resize()
       
     }
   },

@@ -41,6 +41,7 @@ export default {
     '@nuxtjs/axios',
     // https://go.nuxtjs.dev/pwa
     '@nuxtjs/pwa',
+    // 'nuxt-helmet'
   ],
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
@@ -61,6 +62,26 @@ export default {
       lang: 'en'
     }
   },
+
+  // helmet: {
+  //   contentSecurityPolicy: {
+  //     directives: {
+  //       defaultSrc: ["'self'", 'http:', 'https:'],
+  //       blockAllMixedContent: [],
+  //       fontSrc: ["'self'", 'https:', 'data:'],
+  //       frameAncestors: ["'self'"],
+  //       imgSrc: ["'self'", 'data:', 'blob:'],
+  //       objectSrc: ['none'],
+  //       scriptSrc: ["'self'", 'https://api.mapbox.com', 'https://cdn.jsdelivr.net', "'unsafe-inline'", "'unsafe-eval'"],
+  //       scriptSrcElem: ['https:', 'http:', "'unsafe-inline'"],
+  //       scriptSrcAttr: ["'self'", 'https://api.mapbox.com', 'https://cdn.jsdelivr.net', "'unsafe-inline'"],
+  //       styleSrc: ["'self'", 'https://api.mapbox.com', 'https://fonts.googleapis.com', "'unsafe-inline'"],
+  //       workerSrc: ["'self'", 'blob:'],
+  //     },
+
+  //     reportOnly: false, // Set to true if you want to only report violations without enforcing the CSP.
+  //   },
+  // },
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
