@@ -88,6 +88,7 @@ export default {
     completeProfile() {
         if(this.businessName && this.address && this.email && this.industry) {
             this.$store.commit('setNewUser', false);
+            this.$store.commit('setBusiness', true);
 
             // Redirect to home
             this.$router.push('/');

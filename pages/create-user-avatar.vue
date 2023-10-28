@@ -44,6 +44,8 @@ export default {
         this.showIframe = false;
         console.log('success:', json.data)
         this.$store.commit('setAvatarUrl', json.data.avatarId);
+        this.$store.commit('setAvatarLink', json.data.url);
+        this.$store.commit('setLoggedIn', true);
         this.$router.push('/create-user-profile');
         // document.getElementById('avatarUrl').innerText = `Avatar URL: ${json.data.url}`;
       }

@@ -181,6 +181,12 @@ export default {
     }
     })
   },
+beforeDestroy() {
+    if (this.map) {
+      this.map.remove();
+      this.map = null;
+    }
+  },
   methods: {
     openMap() {
       this.showMap = true;
@@ -195,8 +201,8 @@ export default {
       if (this.selectedLocation) {
         this.location = `lon: ${this.selectedLocation[0].toFixed(4)}, lat: ${this.selectedLocation[1].toFixed(4)}`;
         this.numLocation = {
-            "lon": this.selectedLocation[0],
-            "lat": this.selectedLocation[1]
+            lon: this.selectedLocation[0],
+            lat: this.selectedLocation[1]
         }
         console.log(this.location);
         this.showMap = false;
@@ -236,7 +242,7 @@ export default {
         console.log(this.$store.state.quests)
 
         // Redirect to home
-        // this.$router.push("/");
+        this.$router.push("/");
       } else {
         alert("Please, complete all fields");
       }

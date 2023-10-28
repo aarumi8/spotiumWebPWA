@@ -1,6 +1,6 @@
 <template>
   <div class="relative">
-    <button class="absolute" id='permBtn' v-if="!isHeadingPermission" @click="requestHeadingPermission">
+    <button id='permBtn' v-if="!isHeadingPermission" @click="requestHeadingPermission">
       Click here to allow heading permission
     </button>
     <div class="map-container" ref="mapContainer"></div>
@@ -8,7 +8,7 @@
     <!-- Button container -->
     <div class="absolute bottom-0 left-0 right-0 flex justify-between p-4 mb-4">
       <!-- Left button with image -->
-      <button id='businessBtn' class="flex-shrink-0">
+      <button @click='goToQuest' id='businessBtn' class="flex-shrink-0">
         <img src="add-quest-pic.png" alt="Left Button" class="w-12 h-12 object-cover">
       </button>
 
@@ -41,7 +41,8 @@ export default {
       tb: null,
       currentHeading: 0,
       isHeadingPermission: false,
-      isBusiness: this.$store.state.isBusiness
+      isBusiness: this.$store.state.isBusiness,
+      quests: this.$store.state.quests
     };
   },
   async mounted() {
@@ -86,7 +87,7 @@ export default {
           onAdd: () => {
             const scale = 50;
             const options = {
-              obj: "https://models.readyplayer.me/6185a4acfb622cf1cdc49348.glb?quality=high",
+              obj: this.$store.state.avatarLink,
               type: "glb",
               scale: { x: scale, y: scale, z: scale },
               units: "meters",
@@ -109,6 +110,50 @@ export default {
             window.tb.update();
           },
         });
+
+      //         var q = {
+      //   name: "d",
+      //   link: "https://models.readyplayer.me/6185a4acfb622cf1cdc49348.glb",
+      //   location: {lon: 27.561063, lat: 53.917392 } 
+      // }
+      // this.$store.commit("addQuest", q);
+
+      //   if(this.quests) {
+      //     console.log('we have quests')
+      //     for(let i = 0; i < this.quests.length; i++) {
+      //       console.log(this.quests[i])
+      //       map.addLayer({
+      //         id: "quest-" + i,
+      //         type: "custom",
+      //         renderingMode: "3d",
+      //         onAdd: () => {
+      //           const scale = 30;
+      //           const options = {
+      //             obj: this.quests[i].link,
+      //             type: "glb",
+      //             scale: { x: scale, y: scale, z: scale },
+      //             units: "meters",
+      //             rotation: { x: 90, y: -90, z: 0 },
+      //             adjustment: { x: 0, y: 0, z: 0 },
+      //             anchor: 'center'
+      //           };
+      //           var lon = this.quests[i].location.lon
+      //           var lat = this.quests[i].location.lat
+
+      //           window.tb.loadObj(options, (model) => {
+      //             model.setCoords(lon, lat);
+      //             model.setRotation({ x: 0, y: 0, z: 0 });
+      //             window.tb.add(model);
+      //           });
+      //         },
+
+      //         render: function (gl, matrix) {
+      //           gl.clear(gl.DEPTH_BUFFER_BIT);
+      //           window.tb.update();
+      //         },
+      //       });
+      //     }
+      //   }
 
         // map.moveLayer('custom-threebox-model');
       });
@@ -149,6 +194,9 @@ export default {
     }
   },
   methods: {
+    goToQuest() {
+      this.$router.push('/create-quest');
+    },
     getUserLocation() {
       return new Promise((resolve, reject) => {
         navigator.geolocation.getCurrentPosition(
