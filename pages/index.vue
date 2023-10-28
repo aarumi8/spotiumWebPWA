@@ -48,6 +48,7 @@ export default {
     if(!this.isBusiness) {
       document.getElementById('businessBtn').style.visibility = 'hidden'
     }
+
     if (process.client) {
       let center = [148.9819, -35.39847]; // default to New York
 
@@ -77,6 +78,7 @@ export default {
       });
 
       map.on("style.load", () => {
+        console.log(map.getStyle().layers)
         map.addLayer({
           id: "custom-threebox-model",
           type: "custom",
@@ -134,6 +136,7 @@ export default {
       );
 
       this.map = map;
+      
     }
   },
   beforeDestroy() {

@@ -5,7 +5,8 @@ export const state = () => ({
     newUser: true,
     avatarUrl: null,
     isHeadingPermission: false,
-    isBusiness: false
+    isBusiness: false,
+    quests: []
   });
   
   export const mutations = {
@@ -20,6 +21,13 @@ export const state = () => ({
     },
     setIsHeadingPermission(state, status) {
       state.isHeadingPermission = status;
+    },
+    addQuest(state, quest) {  // Add a new quest to the quests array
+      state.quests.push({
+        name: quest.name,
+        link: quest.link,
+        location: quest.location
+      });
     }
   };
   
