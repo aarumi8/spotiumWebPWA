@@ -9,9 +9,9 @@ export default function({ store, redirect, route }) {
     // }
     
     // If the user is on the create-profile page and they're not logged in
-    if (route.path === '/create-profile' && !route.query.user) {
-      return redirect('/login');
-    }
+    // if (route.path === '/create-profile' && !route.query.user) {
+    //   return redirect('/login');
+    // }
   
     // If the user is on any other page (except /login and /create-profile) and they're not logged in
     if (route.path === '/' && !route.query.user) {

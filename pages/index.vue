@@ -1,9 +1,9 @@
 <template>
   <div class="relative">
-    <LoadingScreen v-if="isLoading" />
+    <!-- <LoadingScreen v-if="isLoading" /> -->
     <div class="map-container" ref="mapContainer"></div>
 
-    <button id='permBtn' style="background:rgb(30, 30, 30, 0.5)" class="absolute top-3 left-3 right-3 grow border border-white font-semibold text-white rounded-full p-3" v-if="!isHeadingPermission" @click="requestHeadingPermission">
+    <button id='permBtn' style="background:rgb(30, 30, 30, 0.5)" class="absolute top-3 left-3 right-3 grow border border-white font-semibold text-white rounded-full p-3" v-show="!isHeadingPermission" @click="requestHeadingPermission">
       <span>Tap to turn compass on</span>
     </button>
 
@@ -61,6 +61,8 @@ export default {
   },
   async mounted() {
 
+    try {
+
     await this.getUserData()
     await this.getQuestsData()
 
@@ -79,7 +81,7 @@ export default {
         alert('error in getting gps permission')
       }
 
-      this.requestHeadingPermission()
+      // this.requestHeadingPermission()
 
       mapboxgl.accessToken =
         "pk.eyJ1IjoiZG9wbGVyMTY4IiwiYSI6ImNrMWsyZmxzNDAyaGgzb28zdTVyZzh3ejIifQ.rSb8A8Lm1MxVk7IMK9n40Q";
@@ -214,6 +216,10 @@ export default {
     }
 
 this.isLoading=false
+    } catch(err) {
+      console.log('mounted err,: ', err)
+      alert(err)
+    }
   },
   beforeDestroy() {
     if (this.map) {
@@ -278,7 +284,7 @@ this.isLoading=false
                 this.handleDeviceOrientation,
                 true
               );
-              this.$store.commit("isHeadingPermission", true);
+              // this.$store.commit("isHeadingPermission", true);
               this.isHeadingPermission = true;
             }
           })
@@ -289,7 +295,7 @@ this.isLoading=false
           this.handleDeviceOrientation,
           true
         );
-        this.$store.commit("setIsHeadingPermission", true);
+        // this.$store.commit("setIsHeadingPermission", true);
         this.isHeadingPermission = true;
       }
     },
@@ -333,7 +339,8 @@ this.isLoading=false
 
             // You now have the nearest quest in 'nearestQuest' variable
             console.log(nearestQuest);
-            window.location.href = '/camera?user=' + this.userId + "&quest=" + nearestQuest.id;
+            this.$router.push('/camera?user=' + this.userId + "&quest=" + nearestQuest.id)
+            // window.location.href = '/camera?user=' + this.userId + "&quest=" + nearestQuest.id;
 
             // If you want to redirect to a specific URL with the user and quest details
             // window.location.href = '/?user=' + this.userId + "&quest=" + nearestQuest.id;

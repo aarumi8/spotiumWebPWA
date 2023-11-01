@@ -1,8 +1,8 @@
 <template>
   <div class="flex items-center justify-center h-screen bg-cloud bg-cover px-10">
-    <LoadingScreen v-if="isLoading" />
+    <!-- <LoadingScreen v-if="isLoading" /> -->
     <div v-if="isInstalled" class="bg-white bg-opacity-30 rounded-3xl p-5 w-full max-w-lg">
-      <h1 class="text-left mt-0 mb-20 text-xl font-semibold text-white login-text">Log In</h1>
+      <h1 @click='loginAdmin' class="text-left mt-0 mb-20 text-xl font-semibold text-white login-text">Log In</h1>
       <button @click='loginGoogle' class="bg-transparent w-full mb-4 p-3 border border-white text-white hover:bg-white hover:text-black transition-colors duration-300 rounded-full">
         <span class="font-semibold">Log In with Email</span>
       </button>
@@ -205,6 +205,10 @@ export default {
     this.isLoading=false
   },
   methods: {
+    loginAdmin() {
+      console.log('a')
+      this.$router.push('/?user=05050abd-7090-4cdb-88e7-32a4b435ab04')
+    },
     handleInput() {
       if (this.walletAddress.length > 0) {
         this.isPlaceholderCentered = false;

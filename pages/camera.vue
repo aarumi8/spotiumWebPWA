@@ -1,6 +1,6 @@
 <template>
 <div>
-  <LoadingScreen v-if="isLoading" />
+  <!-- <LoadingScreen v-if="isLoading" /> -->
     <a-scene
       vr-mode-ui="enabled: false"
       arjs="sourceType: webcam; videoTexture: true; debugUIEnabled: false; sourceWidth:1280; sourceHeight:960; displayWidth: 1280; displayHeight: 960;"
@@ -127,6 +127,7 @@ this.isLoading=false
         if(this.isModelFound) {
             alert('You have claimed the Key!')
             window.location.href = '/?user=' + this.userId;
+            // this.$router.push('/?user=' + this.userId)
         } else {
             alert('You have to find the key first')
         }
