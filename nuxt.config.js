@@ -15,7 +15,13 @@ export default {
     ],
     link: [
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
-    ]
+    ],
+    script: [
+      { src: 'https://unpkg.com/@dotlottie/player-component@1.0.0/dist/dotlottie-player.js', body: false },
+      { src: 'https://aframe.io/releases/1.3.0/aframe.min.js', body: false },
+      { src: 'https://unpkg.com/aframe-look-at-component@0.8.0/dist/aframe-look-at-component.min.js', body: false },
+      { src: 'https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js', body: false }
+    ],
   },
 
   // Global CSS: https://go.nuxtjs.dev/config-css
@@ -23,8 +29,7 @@ export default {
   ],
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
-  plugins: [
-  ],
+  plugins: ['~/plugins/aframe.js'],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
   components: true,
@@ -47,7 +52,8 @@ export default {
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
   axios: {
     // Workaround to avoid enforcing hard-coded localhost:3000: https://github.com/nuxt-community/axios-module/issues/308
-    baseURL: 'http://localhost:8000',
+    // baseURL: 'http://localhost:8000',
+    baseURL: 'https://tree-server-api900.online'
   },
 
   // PWA module configuration: https://go.nuxtjs.dev/pwa

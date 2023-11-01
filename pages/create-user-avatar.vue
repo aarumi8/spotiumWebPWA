@@ -1,19 +1,27 @@
 <template>
   <div class="h-screen w-full font-sans p-0 bg-white">
+    <LoadingScreen v-if="isLoading" />
     <iframe v-if="showIframe" id="frame" class="w-full h-screen mb-3 border-0" :src="iframeSrc" allow="camera *; microphone *; clipboard-write"></iframe>
   </div>
 </template>
 
 <script>
+import LoadingScreen from '~/components/LoadingScreen.vue';
 export default {
   layout: 'auth',
   middleware: 'auth',
+    components: {
+    LoadingScreen
+  },
   data() {
     return {
       showIframe: false, // Setting the iframe to be shown by default
       iframeSrc: 'https://spotium-web.readyplayer.me/avatar?frameApi&token=',
       userId: this.$route.query.user,
-      token: null
+      token: null,
+                  isLoading: true,
+            dataFetched: false,
+            pageLoaded: false
     };
   },
   async created() {
@@ -30,8 +38,11 @@ export default {
     }
 
     window.addEventListener('message', this.subscribe);
+
+this.isLoading=false
   },
   mounted() {
+
     // window.addEventListener('message', this.subscribe);
   },
   beforeDestroy() {

@@ -1,6 +1,6 @@
 <template>
   <div class="flex items-center justify-center h-screen bg-cloud bg-cover px-10">
-
+    <LoadingScreen v-if="isLoading" />
     <div v-if="isInstalled" class="bg-white bg-opacity-30 rounded-3xl p-5 w-full max-w-lg">
       <h1 class="text-left mt-0 mb-20 text-xl font-semibold text-white login-text">Log In</h1>
       <button @click='loginGoogle' class="bg-transparent w-full mb-4 p-3 border border-white text-white hover:bg-white hover:text-black transition-colors duration-300 rounded-full">
@@ -155,9 +155,13 @@
 </style>
 
 <script>
+import LoadingScreen from '~/components/LoadingScreen.vue';
 export default {
   layout: 'auth',
   middleware: 'auth',
+  components: {
+    LoadingScreen
+  },
   data() {
     return {
       isInstalled: false,
@@ -168,7 +172,10 @@ export default {
       showGoogleLogin: false,
       walletAddress: null,
       googleMail: null,
-      isPlaceholderCentered: true
+      isPlaceholderCentered: true,
+      isLoading: true,
+      dataFetched: false,
+      pageLoaded: false
     }
   },
   mounted() {
@@ -194,6 +201,8 @@ export default {
     if(this.getDeviceOS() !== 'IOS') {
       this.isIos = false
     }
+
+    this.isLoading=false
   },
   methods: {
     handleInput() {

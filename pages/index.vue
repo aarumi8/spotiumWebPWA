@@ -1,6 +1,6 @@
 <template>
   <div class="relative">
-
+    <LoadingScreen v-if="isLoading" />
     <div class="map-container" ref="mapContainer"></div>
 
     <button id='permBtn' style="background:rgb(30, 30, 30, 0.5)" class="absolute top-3 left-3 right-3 grow border border-white font-semibold text-white rounded-full p-3" v-if="!isHeadingPermission" @click="requestHeadingPermission">
@@ -11,17 +11,17 @@
     <div class="absolute bottom-0 left-0 right-0 flex justify-between p-4 mb-4">
       <!-- Left button with image -->
       <button @click='goToQuest' id='businessBtn' class="flex-shrink-0">
-        <img src="add-quest-pic.png" alt="Left Button" class="w-12 h-12 object-cover">
+        <img src="/add-quest-pic.png" alt="Left Button" class="w-12 h-12 object-cover">
       </button>
 
       <!-- Center button with image -->
-      <button>
-        <img src="ar-btn-pic.png" alt="Center Button" class="w-16 h-16 object-cover mx-auto">
+      <button @click='camera'>
+        <img src="/ar-btn-pic.png" alt="Center Button" class="w-16 h-16 object-cover mx-auto">
       </button>
 
       <!-- Right button with image -->
       <button class="flex-shrink-0">
-        <img src="profile-pic.png" alt="Right Button" class="w-12 h-12 object-cover">
+        <img src="/profile-pic.png" alt="Right Button" class="w-12 h-12 object-cover">
       </button>
     </div>
   </div>
@@ -32,10 +32,14 @@
 import "mapbox-gl/dist/mapbox-gl.css";
 import mapboxgl from "mapbox-gl";
 import { Threebox } from "threebox-plugin";
+import LoadingScreen from '~/components/LoadingScreen.vue';
 
 export default {
   name: "IndexPage",
   middleware: "auth",
+    components: {
+    LoadingScreen
+  },
   data() {
     return {
       map: null,
@@ -47,10 +51,16 @@ export default {
       quests: false,
       userId: this.$route.query.user,
       avatarLink: null,
-      quests: []
+      quests: [],
+      uLat: 0,
+      uLon: 0,
+      isLoading: true,
+      dataFetched: false,
+      pageLoaded: false
     };
   },
   async mounted() {
+
     await this.getUserData()
     await this.getQuestsData()
 
@@ -66,6 +76,7 @@ export default {
         center = [userLocation.lng, userLocation.lat];
       } catch (error) {
         console.error("Error getting user's location:", error);
+        alert('error in getting gps permission')
       }
 
       this.requestHeadingPermission()
@@ -75,11 +86,12 @@ export default {
       const map = new mapboxgl.Map({
         container: this.$refs.mapContainer,
         center: center,
-        zoom: 15,
+        zoom: 15.3,
         pitch: 45,
         bearing: -30,
         antialias: true,
-        style: "mapbox://styles/dopler168/clo97511u010001qs8g78b9tj",
+        style: "mapbox://styles/dopler168/cloaqn5pb011b01qval792j4t",
+        // style: "mapbox://styles/dopler168/clo97511u010001qs8g78b9tj",
       });
 
       window.tb = new Threebox(map, map.getCanvas().getContext("webgl"), {
@@ -106,16 +118,30 @@ export default {
                         const options = {
                             obj: modelInfo.url,
                             type: "glb",
-                            scale: { x: 30, y: 30, z: 30 },
+                            scale: { x: 0.5, y: 0.5, z: 0.5 },
                             units: "meters",
-                            rotation: { x: 90, y: -90, z: 0 },
+                            rotation: { x: 0, y: 0, z: 0 },
+                             anchor: 'top'
                             // ... copy other properties from modelInfo as needed
                         };
-
+                        
                         window.tb.loadObj(options, (model) => {
                             model.setCoords([modelInfo.location.lon, modelInfo.location.lat]);
-                            model.setRotation({ x: 0, y: 0, z: 0 });
+                            model.setRotation({ x: 90, y: 0, z: 0 });
                             window.tb.add(model);
+                            
+                        let rotation = 0;
+                        function updateRotation() {
+                            rotation += (360 / 6) * (1 / 30); // Adjust the rotation speed as needed
+                            rotation %= 360
+                            model.setRotation({ x: 0, y: rotation, z: 0 });
+                            window.tb.update();
+
+                            // Request the next animation frame
+                            requestAnimationFrame(updateRotation);
+                        }
+
+                        updateRotation();
                         });
                     
                 },
@@ -186,6 +212,8 @@ export default {
       this.map.resize()
       
     }
+
+this.isLoading=false
   },
   beforeDestroy() {
     if (this.map) {
@@ -231,6 +259,8 @@ export default {
     },
     updateUserLocationOnMap(coords) {
       if (this.map) {
+        this.uLat = coords.lat 
+        this.uLon = coords.lng
         this.map.flyTo({
           center: [coords.lng, coords.lat],
           essential: true,
@@ -280,6 +310,54 @@ export default {
       if (this.modelReference && typeof compassdir === "number") {
         this.modelReference.setRotation({ x: 0, y: 0, z: -compassdir }); // Adjust the rotation based on the heading
       }
+    },
+    camera() {
+      console.log(this.quests)
+        const uLat = this.uLat; // user lattitude
+        const uLon = this.uLon; // user longtitude
+
+        if (this.quests && this.quests.length > 0) {
+            let nearestQuest = this.quests[0]; // Assume first quest is the nearest
+            let minDistance = this.haversineDistance(uLat, uLon, nearestQuest.location.lat, nearestQuest.location.lon);
+
+            // Loop through the quests to find the nearest one
+            for (let i = 1; i < this.quests.length; i++) {
+                const currentQuest = this.quests[i];
+                const distance = this.haversineDistance(uLat, uLon, currentQuest.location.lat, currentQuest.location.lon);
+                
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    nearestQuest = currentQuest;
+                }
+            }
+
+            // You now have the nearest quest in 'nearestQuest' variable
+            console.log(nearestQuest);
+            window.location.href = '/camera?user=' + this.userId + "&quest=" + nearestQuest.id;
+
+            // If you want to redirect to a specific URL with the user and quest details
+            // window.location.href = '/?user=' + this.userId + "&quest=" + nearestQuest.id;
+
+        } else {
+            alert('No quests at this time');
+        }
+    },
+        haversineDistance(lat1, lon1, lat2, lon2) {
+        function toRad(value) {
+            return value * Math.PI / 180;
+        }
+        
+        const R = 6371; // Earth's radius in kilometers
+        const dLat = toRad(lat2 - lat1);
+        const dLon = toRad(lon2 - lon1);
+
+        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                  Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * 
+                  Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        const d = R * c;
+
+        return d * 1000; // returns the distance in meters
     },
   },
 };
