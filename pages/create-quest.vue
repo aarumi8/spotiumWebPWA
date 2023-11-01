@@ -132,7 +132,7 @@ export default {
       location: "",
       email: "",
       industry: "",
-      linkName: "",
+      linkName: "https://firebasestorage.googleapis.com/v0/b/tree-project-966d4.appspot.com/o/Scene%20(1).glb?alt=media&token=74712e11-5918-4aef-b94b-5d197256a4cf&_gl=1*17kmp2b*_ga*MTY1MzU5OTgwNS4xNjg5NTQ5Mjgx*_ga_CW55HF8NVT*MTY5ODg2NjIxNC44MC4xLjE2OTg4NjYyMjIuNTIuMC4w",
       showMap: false,
       selectedLocation: null,
       map: null,
