@@ -20,7 +20,7 @@
       </button>
 
       <!-- Right button with image -->
-      <button class="flex-shrink-0">
+      <button @click='anim(1)' class="flex-shrink-0">
         <img src="/profile-pic.png" alt="Right Button" class="w-12 h-12 object-cover">
       </button>
     </div>
@@ -33,6 +33,16 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import mapboxgl from "mapbox-gl";
 import { Threebox } from "threebox-plugin";
 import LoadingScreen from '~/components/LoadingScreen.vue';
+
+import * as THREE from 'three'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js'
+let mixer1 = null;
+let clock = new THREE.Clock();
+let isAvatarWalking = false;
+let action = null;
+
+let counter = 0;
 
 export default {
   name: "IndexPage",
@@ -56,7 +66,8 @@ export default {
       uLon: 0,
       isLoading: true,
       dataFetched: false,
-      pageLoaded: false
+      pageLoaded: false,
+      mixer: null,
     };
   },
   async mounted() {
@@ -173,6 +184,19 @@ export default {
             };
 
             window.tb.loadObj(options, (model) => {
+              console.log(1)
+              const fbxLoader = new FBXLoader();
+              fbxLoader.load('./animation.fbx', (fbxAnim) => {
+                // Create an animation mixer and action to play the animation
+                const mixer = new THREE.AnimationMixer(model);
+                action = mixer.clipAction(fbxAnim.animations[0]);
+                action.play();
+
+                // Store the mixer for updating
+                mixer1 = mixer;
+                console.log('mixer created,', mixer)
+              });
+              console.log(2)
               this.modelReference = model;
               model.setCoords(center);
               model.setRotation({ x: 0, y: 0, z: 0 });
@@ -183,6 +207,13 @@ export default {
 
           render: function (gl, matrix) {
             gl.clear(gl.DEPTH_BUFFER_BIT);
+                if (mixer1 && isAvatarWalking) {
+                  console.log('we have mixer in render')
+                  const delta = clock.getDelta();
+                  mixer1.update(delta);
+                } else {
+                  // console.log('no mixer in render',)
+                }
             window.tb.update();
           },
         });
@@ -286,6 +317,23 @@ this.isLoading=false
               );
               // this.$store.commit("isHeadingPermission", true);
               this.isHeadingPermission = true;
+              const threshold = 3;
+              if (window.DeviceMotionEvent) {
+                window.addEventListener('devicemotion', (event) => {
+                  // Get the acceleration data
+                  const acceleration = event.acceleration;
+                  let movement = Math.abs(acceleration.x) + Math.abs(acceleration.y) + Math.abs(acceleration.z);
+                  console.log('The device is moving', acceleration.x, ' ', acceleration.y, ' ', acceleration.z);
+                  // Determine if the device is moving significantly
+                  if (movement > threshold) {
+                    console.log('The device is moving', acceleration.x, ' ', acceleration.y);
+                    this.anim(true)
+                  } else {
+                    console.log('slow down')
+                    this.anim(false)
+                  }
+                });
+              }
             }
           })
           .catch(console.error);
@@ -339,8 +387,8 @@ this.isLoading=false
 
             // You now have the nearest quest in 'nearestQuest' variable
             console.log(nearestQuest);
-            this.$router.push('/camera?user=' + this.userId + "&quest=" + nearestQuest.id)
-            // window.location.href = '/camera?user=' + this.userId + "&quest=" + nearestQuest.id;
+            // this.$router.push('/camera?user=' + this.userId + "&quest=" + nearestQuest.id)
+            window.location.href = '/camera?user=' + this.userId + "&quest=" + nearestQuest.id;
 
             // If you want to redirect to a specific URL with the user and quest details
             // window.location.href = '/?user=' + this.userId + "&quest=" + nearestQuest.id;
@@ -366,6 +414,43 @@ this.isLoading=false
 
         return d * 1000; // returns the distance in meters
     },
+    // anim(shouldAnimate) {
+    //   if (shouldAnimate) {
+    //     movementCounter = Math.min(movementCounter + 1, counterLimit);
+    //     if (movementCounter >= movementThreshold && !isAvatarWalking) {
+    //       // action.play();
+    //       isAvatarWalking = true;
+    //     }
+    //   } else {
+    //     movementCounter = Math.max(movementCounter - 1, 0);
+    //     if (movementCounter < movementThreshold && isAvatarWalking) {
+    //       // action.stop(); (or action.paused = true; if you have a pause mechanism)
+    //       isAvatarWalking = false;
+    //     }
+    //   }
+    // }
+    anim(k) {
+      if(k === 1) {
+         if(!isAvatarWalking) {
+            // action.play()
+            isAvatarWalking = true
+          }else {
+          // action.pause()
+          isAvatarWalking = false
+        }
+      } else {
+        
+        if(k) {
+          if(!isAvatarWalking) {
+            // action.play()
+            isAvatarWalking = true
+          }
+        } else {
+          // action.pause()
+          isAvatarWalking = false
+        }
+      }
+    }
   },
 };
 </script>

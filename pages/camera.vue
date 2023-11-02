@@ -9,8 +9,8 @@
     </a-scene>
               <div class="absolute bottom-0 left-0 right-0 flex justify-between p-4 mb-4">
             <!-- Left button with image -->
-            <button style="visibility: hidden" id='businessBtn' class="flex-shrink-0">
-                <img src="/add-quest-pic.png" alt="Left Button" class="w-12 h-12 object-cover">
+            <button @click='back' id='businessBtn' class="flex-shrink-0">
+                <img src="/back.png" alt="Left Button" class="w-12 h-12 object-cover">
             </button>
 
             <!-- Center button with image -->
@@ -148,6 +148,9 @@ this.isLoading=false
         const d = R * c;
 
         return d * 1000; // returns the distance in meters
+    },
+    back() {
+      window.location.href = '/?user=' + this.userId;
     },
     getUserLocation() {
       return new Promise((resolve, reject) => {
